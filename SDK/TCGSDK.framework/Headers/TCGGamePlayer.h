@@ -11,7 +11,8 @@
 #import <tcgsdk/TCGSdkConst.h>
 #import <tcgsdk/TCGCustomTransChannel.h>
 #import <AVFoundation/AVFoundation.h>
-
+#import <tcgsdk/TCGVideoFrame.h>
+#import <tcgsdk/TCGAudioFrame.h>
 
 @class TCGGameController;
 
@@ -103,6 +104,24 @@
         error:(NSError **)outError;
 - (BOOL)onSetMode:(NSString *)mode error:(NSError **)outError;
 - (BOOL)onSetActive:(BOOL)active error:(NSError **)outError;
+@end
+
+#pragma mark --- 解码后视频帧接口 ---
+@protocol TCGVideoSinkDelegate <NSObject>
+@required
+/*
+  解码后的视频帧数据回调
+ */
+- (void)onRenderVideoFrame:(TCGVideoFrame *)frame;
+@end
+
+#pragma mark --- 音频数据回调接口 ---
+@protocol TCGAudioSinkDelegate <NSObject>
+@required
+/**
+ 音频数据回调，如何使用参考TCGAudioFrame
+ */
+- (void)onAudioData:(TCGAudioFrame *)data;
 @end
 
 #pragma mark --- SDK云游基础类，提供云游能力 ---
@@ -232,6 +251,14 @@
  * @discussion 异步执行，通过TCGCustomTransChannelDelegate返回结果
  */
 - (TCGCustomTransChannel *)openCustomTransChannel:(int)remotePort delegate:(id<TCGCustomTransChannelDelegate>)channelDelegate;
+
+/*!
+ * 开启自定义渲染模式，调用后sdk将不再向TCGGamePlayer.videoView上渲染画面
+ * @param videoSink 待渲染视频帧的回调，详情见TCGVideoSinkDelegate
+ */
+- (void)setVideoSink:(id<TCGVideoSinkDelegate>)videoSink;
+
+- (void)setAudioSink:(id<TCGAudioSinkDelegate>)audioSink;
 
 /*!
  * 设置sdk audioSession代理，实现并通过addTCGAudioSessionDelegate后。sdk中将不再操作AudioSession，而是将AudioSession相关操作通过该代理回调到APP
