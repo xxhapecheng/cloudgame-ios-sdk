@@ -72,6 +72,10 @@
 
 // 暂未实现
 //- (void)onReceiveTransChannel:(NSString *)name data:(NSData *)data;
+/*!
+ * 连续10s fps为0回调（可选）。
+ */
+- (void)onLowFps;
 
 @end
 
